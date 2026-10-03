@@ -1,0 +1,159 @@
+import os
+import pandas as pd
+
+transactions = [
+    # ------------------- MAY 2026 (Month 1: Baseline Stability) -------------------
+    ("2026-05-02", "Client Retainer - Acme Corp", 115000.0, "Income", "Client Retainers"),
+    ("2026-05-03", "Commercial Office Lease", 32000.0, "Expense", "Rent & Facilities"),
+    ("2026-05-04", "AWS Cloud Infrastructure", 4250.0, "Expense", "Software & Cloud"),
+    ("2026-05-05", "Google Workspace & Storage", 2200.0, "Expense", "Software & Cloud"),
+    ("2026-05-07", "Stripe SaaS Subscription Revenue", 48500.0, "Income", "SaaS Subscriptions"),
+    ("2026-05-09", "Pantry & Premium Coffee Supplies", 2800.0, "Expense", "Office & Supplies"),
+    ("2026-05-11", "Client Milestone - Nova Retail", 85000.0, "Income", "Client Retainers"),
+    ("2026-05-13", "Meta Ads Performance Campaign", 8500.0, "Expense", "Marketing & Growth"),
+    ("2026-05-15", "Google Ads Search Campaign", 6200.0, "Expense", "Marketing & Growth"),
+    ("2026-05-17", "High-Speed Commercial Fiber", 3200.0, "Expense", "Utilities"),
+    ("2026-05-18", "Electricity & Air Conditioning", 4800.0, "Expense", "Utilities"),
+    ("2026-05-20", "Stripe SaaS Subscription Revenue", 52300.0, "Income", "SaaS Subscriptions"),
+    ("2026-05-22", "GitHub Enterprise & Figma", 4200.0, "Expense", "Software & Cloud"),
+    ("2026-05-25", "Monthly Team Payroll (4 Staff)", 88000.0, "Expense", "Payroll & Wages"),
+    ("2026-05-27", "Monthly Accounting & Tax Compliance", 8000.0, "Expense", "Professional Services"),
+    ("2026-05-28", "Custom Technical Workshop Fee", 35000.0, "Income", "Consulting"),
+    ("2026-05-29", "Contract UI/UX Design Sprint", 15000.0, "Expense", "Contractors & Freelance"),
+    ("2026-05-30", "Hardware Peripherals & Keyboards", 3400.0, "Expense", "Office & Supplies"),
+
+    # ------------------- JUNE 2026 (Month 2: Revenue Growth) -------------------
+    ("2026-06-01", "Client Retainer - Acme Corp", 115000.0, "Income", "Client Retainers"),
+    ("2026-06-02", "Client Retainer - Pinnacle Financial", 130000.0, "Income", "Client Retainers"),
+    ("2026-06-03", "Commercial Office Lease", 32000.0, "Expense", "Rent & Facilities"),
+    ("2026-06-05", "AWS Cloud Infrastructure", 4600.0, "Expense", "Software & Cloud"),
+    ("2026-06-06", "Google Workspace & Slack Pro", 3700.0, "Expense", "Software & Cloud"),
+    ("2026-06-08", "Stripe SaaS Subscription Revenue", 58400.0, "Income", "SaaS Subscriptions"),
+    ("2026-06-10", "Meta Ads Performance Campaign", 9200.0, "Expense", "Marketing & Growth"),
+    ("2026-06-12", "Google Ads Search Campaign", 7100.0, "Expense", "Marketing & Growth"),
+    ("2026-06-14", "Client Milestone - Nova Retail", 90000.0, "Income", "Client Retainers"),
+    ("2026-06-16", "Pantry & Refreshment Restock", 2950.0, "Expense", "Office & Supplies"),
+    ("2026-06-18", "High-Speed Commercial Fiber", 3200.0, "Expense", "Utilities"),
+    ("2026-06-19", "Electricity & Building Cooling", 5100.0, "Expense", "Utilities"),
+    ("2026-06-21", "Stripe SaaS Subscription Revenue", 61200.0, "Income", "SaaS Subscriptions"),
+    ("2026-06-23", "GitHub & CI/CD Cloud Runners", 3900.0, "Expense", "Software & Cloud"),
+    ("2026-06-25", "Monthly Team Payroll (4 Staff)", 88000.0, "Expense", "Payroll & Wages"),
+    ("2026-06-26", "Monthly Accounting & Tax Compliance", 8000.0, "Expense", "Professional Services"),
+    ("2026-06-28", "Executive Security Architecture Audit", 22000.0, "Expense", "Professional Services"),
+    ("2026-06-29", "Digital Architecture Consulting Fee", 45000.0, "Income", "Consulting"),
+    ("2026-06-30", "Team Quarterly Lunch & Morale", 4800.0, "Expense", "Team & Culture"),
+
+    # ------------------- JULY 2026 (Month 3: Anomaly 1 - AWS 1-Year Prepayment) -------------------
+    ("2026-07-01", "Client Retainer - Acme Corp", 125000.0, "Income", "Client Retainers"),
+    ("2026-07-02", "Client Retainer - Pinnacle Financial", 130000.0, "Income", "Client Retainers"),
+    ("2026-07-03", "Commercial Office Lease", 32000.0, "Expense", "Rent & Facilities"),
+    ("2026-07-04", "AWS 1-Year Reserved Cloud Commitment (Anomaly 1)", 94500.0, "Expense", "Software & Cloud"),
+    ("2026-07-06", "Google Workspace & Slack Pro", 3700.0, "Expense", "Software & Cloud"),
+    ("2026-07-08", "Stripe SaaS Subscription Revenue", 66800.0, "Income", "SaaS Subscriptions"),
+    ("2026-07-10", "Meta Ads Performance Campaign", 9800.0, "Expense", "Marketing & Growth"),
+    ("2026-07-12", "Google Ads Search Campaign", 7400.0, "Expense", "Marketing & Growth"),
+    ("2026-07-14", "Client Milestone - Nova Retail", 85000.0, "Income", "Client Retainers"),
+    ("2026-07-15", "Pantry Supplies & Clean Water", 2600.0, "Expense", "Office & Supplies"),
+    ("2026-07-17", "High-Speed Commercial Fiber", 3200.0, "Expense", "Utilities"),
+    ("2026-07-18", "Electricity & Climate Control", 5400.0, "Expense", "Utilities"),
+    ("2026-07-21", "Stripe SaaS Subscription Revenue", 69500.0, "Income", "SaaS Subscriptions"),
+    ("2026-07-23", "Figma Org & Design System Tools", 4100.0, "Expense", "Software & Cloud"),
+    ("2026-07-25", "Monthly Team Payroll (4 Staff)", 92000.0, "Expense", "Payroll & Wages"),
+    ("2026-07-27", "Monthly Accounting & Tax Compliance", 8000.0, "Expense", "Professional Services"),
+    ("2026-07-28", "Contract QA Automation Engineer", 18000.0, "Expense", "Contractors & Freelance"),
+    ("2026-07-29", "Digital Transformation Consulting", 40000.0, "Income", "Consulting"),
+    ("2026-07-30", "Ergonomic Chairs Restock", 6200.0, "Expense", "Office & Supplies"),
+
+    # ------------------- AUGUST 2026 (Month 4: Anomaly 2 - Hardware Mac Studio Upgrade) -------------------
+    ("2026-08-01", "Client Retainer - Acme Corp", 125000.0, "Income", "Client Retainers"),
+    ("2026-08-02", "Client Retainer - Pinnacle Financial", 130000.0, "Income", "Client Retainers"),
+    ("2026-08-03", "Commercial Office Lease", 32000.0, "Expense", "Rent & Facilities"),
+    ("2026-08-05", "Google Workspace & Productivity", 3800.0, "Expense", "Software & Cloud"),
+    ("2026-08-07", "Stripe SaaS Subscription Revenue", 74200.0, "Income", "SaaS Subscriptions"),
+    ("2026-08-08", "Apple Workstation & 4K Studio Displays (Anomaly 2)", 148000.0, "Expense", "Office & Supplies"),
+    ("2026-08-11", "Meta Ads Performance Campaign", 11000.0, "Expense", "Marketing & Growth"),
+    ("2026-08-13", "Google Ads Search Campaign", 8200.0, "Expense", "Marketing & Growth"),
+    ("2026-08-15", "Client Milestone - Horizon AI", 110000.0, "Income", "Client Retainers"),
+    ("2026-08-16", "Pantry & Office Refreshments", 3100.0, "Expense", "Office & Supplies"),
+    ("2026-08-18", "High-Speed Commercial Fiber", 3200.0, "Expense", "Utilities"),
+    ("2026-08-19", "Electricity & Air Conditioning", 5600.0, "Expense", "Utilities"),
+    ("2026-08-21", "Stripe SaaS Subscription Revenue", 77100.0, "Income", "SaaS Subscriptions"),
+    ("2026-08-23", "GitHub Enterprise & Security Addons", 4500.0, "Expense", "Software & Cloud"),
+    ("2026-08-25", "Monthly Team Payroll (5 Staff + Bonus)", 98000.0, "Expense", "Payroll & Wages"),
+    ("2026-08-27", "Monthly Accounting & Tax Compliance", 8000.0, "Expense", "Professional Services"),
+    ("2026-08-28", "Contract Fullstack Engineer", 24000.0, "Expense", "Contractors & Freelance"),
+    ("2026-08-29", "Enterprise Cloud Readiness Workshop", 48000.0, "Income", "Consulting"),
+    ("2026-08-30", "Team Summer Picnic & Dinner", 6500.0, "Expense", "Team & Culture"),
+
+    # ------------------- SEPTEMBER 2026 (Month 5: Anomaly 3 - Product Launch Ad Surge) -------------------
+    ("2026-09-01", "Client Retainer - Acme Corp", 125000.0, "Income", "Client Retainers"),
+    ("2026-09-02", "Client Retainer - Pinnacle Financial", 130000.0, "Income", "Client Retainers"),
+    ("2026-09-03", "Commercial Office Lease", 32000.0, "Expense", "Rent & Facilities"),
+    ("2026-09-04", "AWS On-Demand Server Overflow", 5800.0, "Expense", "Software & Cloud"),
+    ("2026-09-05", "Google Workspace & Slack Pro", 3800.0, "Expense", "Software & Cloud"),
+    ("2026-09-07", "Stripe SaaS Subscription Revenue", 84500.0, "Income", "SaaS Subscriptions"),
+    ("2026-09-08", "V2 Product Launch Multi-Channel Ad Blitz (Anomaly 3)", 72000.0, "Expense", "Marketing & Growth"),
+    ("2026-09-11", "Client Milestone - Horizon AI", 115000.0, "Income", "Client Retainers"),
+    ("2026-09-12", "Product Launch Press Release & Media Distribution", 12500.0, "Expense", "Marketing & Growth"),
+    ("2026-09-14", "Pantry Supplies & Snack Bar", 3200.0, "Expense", "Office & Supplies"),
+    ("2026-09-16", "High-Speed Commercial Fiber", 3200.0, "Expense", "Utilities"),
+    ("2026-09-17", "Electricity & Cooling", 5200.0, "Expense", "Utilities"),
+    ("2026-09-19", "Stripe SaaS Subscription Inflow - Surge Day 1", 96500.0, "Income", "SaaS Subscriptions"),
+    ("2026-09-20", "Stripe SaaS Subscription Inflow - Surge Day 2", 88400.0, "Income", "SaaS Subscriptions"),
+    ("2026-09-22", "Vercel Enterprise & Cloudflare Pro", 4400.0, "Expense", "Software & Cloud"),
+    ("2026-09-25", "Monthly Team Payroll (5 Staff)", 98000.0, "Expense", "Payroll & Wages"),
+    ("2026-09-26", "Monthly Accounting & Tax Compliance", 8000.0, "Expense", "Professional Services"),
+    ("2026-09-27", "Contract Copywriter & Video Editor", 16000.0, "Expense", "Contractors & Freelance"),
+    ("2026-09-28", "Strategy & AI Advisory Session", 55000.0, "Income", "Consulting"),
+    ("2026-09-29", "Office Supplies & Ergonomic Accessories", 3600.0, "Expense", "Office & Supplies"),
+    ("2026-09-30", "Launch Celebration Catering", 7200.0, "Expense", "Team & Culture"),
+
+    # ------------------- OCTOBER 2026 (Month 6: Anomaly 4 - Corporate Legal Retainer & IP Filing) -------------------
+    ("2026-10-01", "Client Retainer - Acme Corp", 130000.0, "Income", "Client Retainers"),
+    ("2026-10-02", "Client Retainer - Pinnacle Financial", 130000.0, "Income", "Client Retainers"),
+    ("2026-10-03", "Commercial Office Lease", 32000.0, "Expense", "Rent & Facilities"),
+    ("2026-10-04", "AWS Cloud Infrastructure", 5200.0, "Expense", "Software & Cloud"),
+    ("2026-10-05", "Google Workspace & Slack Pro", 3800.0, "Expense", "Software & Cloud"),
+    ("2026-10-06", "Stripe SaaS Subscription Revenue", 91200.0, "Income", "SaaS Subscriptions"),
+    ("2026-10-08", "Corporate IP Trademark & Annual Legal Retainer (Anomaly 4)", 58000.0, "Expense", "Professional Services"),
+    ("2026-10-10", "Meta Ads Steady Campaign", 12500.0, "Expense", "Marketing & Growth"),
+    ("2026-10-12", "Google Ads Search Campaign", 9500.0, "Expense", "Marketing & Growth"),
+    ("2026-10-14", "Client Milestone - Horizon AI", 115000.0, "Income", "Client Retainers"),
+    ("2026-10-15", "Pantry Supplies & Beverage Restock", 3300.0, "Expense", "Office & Supplies"),
+    ("2026-10-17", "High-Speed Commercial Fiber", 3200.0, "Expense", "Utilities"),
+    ("2026-10-18", "Electricity & Seasonal Heating", 4900.0, "Expense", "Utilities"),
+    ("2026-10-20", "Stripe SaaS Subscription Revenue", 94100.0, "Income", "SaaS Subscriptions"),
+    ("2026-10-22", "GitHub Enterprise & Security Tools", 4600.0, "Expense", "Software & Cloud"),
+    ("2026-10-25", "Monthly Team Payroll (5 Staff)", 98000.0, "Expense", "Payroll & Wages"),
+    ("2026-10-26", "Monthly Accounting & Tax Compliance", 8000.0, "Expense", "Professional Services"),
+    ("2026-10-27", "Contract Mobile Flutter Specialist", 22000.0, "Expense", "Contractors & Freelance"),
+    ("2026-10-28", "Enterprise AI Architecture Advisory", 60000.0, "Income", "Consulting"),
+    ("2026-10-29", "Office Network Switch & Router Upgrade", 8500.0, "Expense", "Office & Supplies"),
+    ("2026-10-30", "Team Halloween Social & Refreshments", 4500.0, "Expense", "Team & Culture"),
+    ("2026-10-31", "Client Milestone - New Enterprise Partner", 140000.0, "Income", "Client Retainers"),
+]
+
+df = pd.DataFrame(transactions, columns=["Date", "Description", "Amount", "Type", "Category"])
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+csv_path = os.path.join(base_dir, "data", "sample_transactions.csv")
+frontend_csv = os.path.join(base_dir, "frontend", "public", "sample_transactions.csv")
+xlsx_path = os.path.join(base_dir, "data", "sample_transactions.xlsx")
+
+df.to_csv(csv_path, index=False)
+print(f"Saved {len(df)} transactions to {csv_path}")
+
+df.to_csv(frontend_csv, index=False)
+print(f"Saved {len(df)} transactions to {frontend_csv}")
+
+df.to_excel(xlsx_path, index=False, engine="openpyxl")
+print(f"Saved {len(df)} transactions to {xlsx_path}")
+
+total_income = df[df["Type"] == "Income"]["Amount"].sum()
+total_expense = df[df["Type"] == "Expense"]["Amount"].sum()
+net_cash_flow = total_income - total_expense
+print(f"Total Transactions: {len(df)}")
+print(f"Total Income: INR {total_income:,.2f}")
+print(f"Total Expenses: INR {total_expense:,.2f}")
+print(f"Net Cash Flow: INR {net_cash_flow:,.2f}")
+print(f"Net Margin: {(net_cash_flow / total_income) * 100:.1f}%")
