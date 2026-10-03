@@ -41,9 +41,10 @@ def detect_intent(query: str) -> BusinessQueryIntent:
 
     # Intent 3: Categories / Breakdown
     if any(k in q for k in [
-        "categor", "breakdown", "biggest", "top expense", "where did",
-        "where does", "spend the most", "major spend"
-    ]):
+        "categor", "breakdown", "biggest", "top expense", "top spend",
+        "where did", "where does", "where am i", "most money", "major spend",
+        "spend the most", "spending the most", "spent the most", "highest spend"
+    ]) or ("spend" in q and "most" in q):
         return BusinessQueryIntent.CATEGORY_BREAKDOWN
 
     # Intent 4: Cash Flow / Profitability
