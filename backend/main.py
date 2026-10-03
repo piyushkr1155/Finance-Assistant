@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 
 from api.upload import router as upload_router
+from api.analytics import router as analytics_router
 
 app = FastAPI(
     title="LocalLedger AI API",
@@ -26,6 +27,7 @@ app.add_middleware(
 
 # Register API Routers
 app.include_router(upload_router)
+app.include_router(analytics_router)
 
 
 @app.get("/")

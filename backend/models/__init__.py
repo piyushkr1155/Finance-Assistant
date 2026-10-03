@@ -7,6 +7,14 @@ from models.transaction import (
     ConfirmMappingRequest,
     TransactionListResponse,
 )
+from models.analytics import (
+    SummaryKPIs,
+    MonthlyMetric,
+    CategoryBreakdown,
+    LargestTransaction,
+    UnusualTransaction,
+    AnomalyReport,
+)
 
 __all__ = [
     "TransactionType",
@@ -16,4 +24,10 @@ __all__ = [
     "UploadResult",
     "ConfirmMappingRequest",
     "TransactionListResponse",
+    "SummaryKPIs",
+    "MonthlyMetric",
+    "CategoryBreakdown",
+    "LargestTransaction",
+    "UnusualTransaction",
+    "AnomalyReport",
 ]
