@@ -1,6 +1,5 @@
 import json
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 
 from services.session_store import session_store
 from services.ai_provider import ai_service
@@ -10,7 +9,17 @@ from services.prompt_templates import (
     build_executive_insights_prompt,
 )
 from services.ai_validator import validate_ai_response
-from models.ai import AIStatusResponse, AIGenerateRequest, AIGenerateResponse
+from services.intent_router import (
+    generate_structured_business_answer,
+    detect_intent,
+)
+from models.ai import (
+    AIStatusResponse,
+    AIGenerateRequest,
+    AIGenerateResponse,
+    AskBusinessRequest,
+    AskBusinessResponse,
+)
 
 router = APIRouter(prefix="/api/ai", tags=["Local AI"])
 
@@ -125,4 +134,34 @@ def get_ai_insights(payload: AIGenerateRequest):
         response=validated_text,
         is_fallback=False,
         context_used=context,
+    )
+
+
+@router.post("/ask", response_model=AskBusinessResponse)
+def ask_my_business(payload: AskBusinessRequest):
+    """
+    'Ask My Business' feature.
+    Executes intent routing, selects verified analytics, and returns a 4-part structured
+    response (ANSWER, KEY DATA, WHY IT MATTERS, WHAT TO CHECK) with certified evidence.
+    """
+    transactions = session_store.get_transactions(payload.session_id)
+    if not transactions:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Session '{payload.session_id}' not found. Please upload a file first.",
+        )
+
+    structured_answer = generate_structured_business_answer(
+        session_id=payload.session_id,
+        query=payload.query,
+    )
+
+    return AskBusinessResponse(
+        query=payload.query,
+        intent=structured_answer["intent"],
+        answer=structured_answer["answer"],
+        key_data=structured_answer["key_data"],
+        why_it_matters=structured_answer["why_it_matters"],
+        what_to_check=structured_answer["what_to_check"],
+        evidence=structured_answer["evidence"],
     )

@@ -23,3 +23,18 @@ class AIGenerateResponse(BaseModel):
     response: str
     is_fallback: bool = False
     context_used: Optional[Dict[str, Any]] = None
+
+
+class AskBusinessRequest(BaseModel):
+    session_id: str
+    query: str
+
+
+class AskBusinessResponse(BaseModel):
+    query: str
+    intent: str
+    answer: str
+    key_data: List[str]
+    why_it_matters: str
+    what_to_check: List[str]
+    evidence: Dict[str, Any] = {}

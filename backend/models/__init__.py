@@ -19,6 +19,8 @@ from models.ai import (
     AIStatusResponse,
     AIGenerateRequest,
     AIGenerateResponse,
+    AskBusinessRequest,
+    AskBusinessResponse,
 )
 
 __all__ = [
@@ -38,4 +40,6 @@ __all__ = [
     "AIStatusResponse",
     "AIGenerateRequest",
     "AIGenerateResponse",
+    "AskBusinessRequest",
+    "AskBusinessResponse",
 ]
