@@ -57,8 +57,11 @@ def detect_unusual_transactions_comprehensive(
         iqr = q75 - q25
         iqr_upper_bound = q75 + (1.5 * iqr) if iqr > 0 else (overall_median * 2.5)
 
-        # Monthly total expenses for budget share calculations
+        # Precompute group aggregations for O(1) row evaluation (avoids dataframe filtering in inner loop)
         monthly_totals = sub_df.groupby("month")["amount"].sum().to_dict()
+        monthly_counts = sub_df.groupby("month").size().to_dict()
+        cat_sums = sub_df.groupby("category")["amount"].sum().to_dict()
+        cat_counts = sub_df.groupby("category").size().to_dict()
 
         for _, row in sub_df.iterrows():
             amt = float(row["amount"])
@@ -66,15 +69,18 @@ def detect_unusual_transactions_comprehensive(
             row_id = str(row["id"])
             m = str(row["month"])
 
-            cat_others = sub_df[(sub_df["category"] == cat) & (sub_df["id"] != row_id)]["amount"]
+            # 1. Category Baseline Check (Leave-One-Out in O(1))
+            c_count = cat_counts.get(cat, 0)
+            c_sum = cat_sums.get(cat, 0.0)
+            other_count = c_count - 1
+            other_sum = c_sum - amt
 
             reasons: List[str] = []
             ratio_cat: Optional[float] = None
             severity = "medium"
 
-            # 1. Category Baseline Check (Leave-One-Out)
-            if len(cat_others) >= 1:
-                other_avg = float(cat_others.mean())
+            if other_count >= 1:
+                other_avg = float(other_sum / other_count)
                 if other_avg > 0 and amt >= 2.5 * other_avg and (amt - other_avg) >= 1000:
                     ratio_cat = round(amt / other_avg, 1)
                     reasons.append(
@@ -92,7 +98,7 @@ def detect_unusual_transactions_comprehensive(
                     severity = "high"
 
             # 3. Large Budget Share Check (Single transaction represents >= 35% of entire month's expenses, with at least 3 expenses in that month)
-            m_txns_count = len(sub_df[sub_df["month"] == m])
+            m_txns_count = monthly_counts.get(m, 0)
             m_total = monthly_totals.get(m, 0.0)
             if (
                 t_type == TransactionType.EXPENSE.value

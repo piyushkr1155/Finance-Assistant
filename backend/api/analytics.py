@@ -58,6 +58,8 @@ def get_categories(
 
 
 @router.get("/api/analytics/largest", response_model=List[LargestTransaction])
+@router.get("/api/analytics/largest-expenses", response_model=List[LargestTransaction])
+@router.get("/analytics/largest", response_model=List[LargestTransaction])
 def get_largest(
     session_id: str = Query(..., description="Active session ID"),
     type: Optional[str] = Query(None, description="'expense' or 'income' or omit for all"),
