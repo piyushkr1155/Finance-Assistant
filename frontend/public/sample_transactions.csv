@@ -1,0 +1,32 @@
+Date,Description,Amount,Type,Category
+2026-06-01,Client Retainer - Alpha Corp,120000,Income,Sales & Revenue
+2026-06-03,Office Lease June,25000,Expense,Rent & Facilities
+2026-06-05,Google Workspace & Cloud,3500,Expense,Software & Subscriptions
+2026-06-08,Raw Materials Wholesale,42000,Expense,Inventory & Supplies
+2026-06-12,Product Sales Online,68000,Income,Sales & Revenue
+2026-06-15,Marketing Ads Meta,14000,Expense,Marketing & Ads
+2026-06-18,Electricity & High-Speed Fiber,4800,Expense,Utilities
+2026-06-25,Monthly Staff Payroll,75000,Expense,Payroll
+2026-06-28,Consulting Deliverable Payment,45000,Income,Sales & Revenue
+2026-07-02,Client Retainer - Alpha Corp,120000,Income,Sales & Revenue
+2026-07-03,Office Lease July,25000,Expense,Rent & Facilities
+2026-07-06,Google Workspace & Cloud,3600,Expense,Software & Subscriptions
+2026-07-09,Packaging & Shipping Supplies,8500,Expense,Inventory & Supplies
+2026-07-14,Product Sales Online,82000,Income,Sales & Revenue
+2026-07-16,Marketing Ads Meta,16500,Expense,Marketing & Ads
+2026-07-19,Electricity & High-Speed Fiber,5100,Expense,Utilities
+2026-07-24,Client Retainer - Beta Labs,95000,Income,Sales & Revenue
+2026-07-25,Monthly Staff Payroll,75000,Expense,Payroll
+2026-07-29,Accounting & Legal Compliance,12000,Expense,Professional Services
+2026-08-01,Client Retainer - Alpha Corp,135000,Income,Sales & Revenue
+2026-08-03,Office Lease August,25000,Expense,Rent & Facilities
+2026-08-04,Google Workspace & AWS Cloud,4100,Expense,Software & Subscriptions
+2026-08-08,Raw Materials Wholesale,46000,Expense,Inventory & Supplies
+2026-08-11,Product Sales Online,92000,Income,Sales & Revenue
+2026-08-14,Bulk Factory Equipment Spare (Unusual),88000,Expense,Inventory & Supplies
+2026-08-17,Marketing Ads Meta & Google,22000,Expense,Marketing & Ads
+2026-08-20,Electricity & High-Speed Fiber,5300,Expense,Utilities
+2026-08-23,Client Retainer - Beta Labs,95000,Income,Sales & Revenue
+2026-08-25,Monthly Staff Payroll,82000,Expense,Payroll
+2026-08-28,Annual Cyber Insurance Premium (Unusual),45000,Expense,Professional Services
+2026-08-30,Enterprise Software License,18000,Expense,Software & Subscriptions
