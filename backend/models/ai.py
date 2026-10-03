@@ -38,3 +38,20 @@ class AskBusinessResponse(BaseModel):
     why_it_matters: str
     what_to_check: List[str]
     evidence: Dict[str, Any] = {}
+
+
+class ExplainAnomalyRequest(BaseModel):
+    session_id: str
+    anomaly_id: str
+
+
+class ExplainAnomalyResponse(BaseModel):
+    anomaly_id: str
+    description: str
+    amount: float
+    category: str
+    statistical_reason: str
+    ai_explanation: str
+    recommended_action: str
+    model_used: str
+    is_fallback: bool

@@ -13,12 +13,15 @@ from services.intent_router import (
     generate_structured_business_answer,
     detect_intent,
 )
+from services.anomaly_detector import detect_unusual_transactions_comprehensive
 from models.ai import (
     AIStatusResponse,
     AIGenerateRequest,
     AIGenerateResponse,
     AskBusinessRequest,
     AskBusinessResponse,
+    ExplainAnomalyRequest,
+    ExplainAnomalyResponse,
 )
 
 router = APIRouter(prefix="/api/ai", tags=["Local AI"])
@@ -111,7 +114,6 @@ def get_ai_insights(payload: AIGenerateRequest):
     )
 
     if not gen_result.get("success"):
-        # If model timed out or error occurred, fallback to deterministic briefing
         fallback_briefing = generate_deterministic_briefing(context)
         return AIGenerateResponse(
             success=True,
@@ -164,4 +166,91 @@ def ask_my_business(payload: AskBusinessRequest):
         why_it_matters=structured_answer["why_it_matters"],
         what_to_check=structured_answer["what_to_check"],
         evidence=structured_answer["evidence"],
+    )
+
+
+@router.post("/explain-anomaly", response_model=ExplainAnomalyResponse)
+def explain_anomaly(payload: ExplainAnomalyRequest):
+    """
+    Generate an explainable AI briefing for a specific flagged unusual transaction.
+    Synthesizes why it was flagged and what operational verification is recommended.
+    """
+    transactions = session_store.get_transactions(payload.session_id)
+    if not transactions:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Session '{payload.session_id}' not found. Please upload a file first.",
+        )
+
+    report = detect_unusual_transactions_comprehensive(transactions)
+    target_anomaly = next((a for a in report.anomalies if a.id == payload.anomaly_id), None)
+
+    if not target_anomaly:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Anomaly with ID '{payload.anomaly_id}' not found.",
+        )
+
+    ai_status = ai_service.get_status()
+    deterministic_explanation = (
+        f"This transaction of ₹{target_anomaly.amount:,.2f} for '{target_anomaly.description}' on {target_anomaly.date} "
+        f"stands out because {target_anomaly.reason}."
+    )
+    recommended_action = (
+        f"Verify the vendor contract or invoice for '{target_anomaly.description}' to confirm whether this is a one-time "
+        f"capital expenditure or an unexpected rate increase."
+    )
+
+    if not ai_status.available or not ai_status.active_model:
+        return ExplainAnomalyResponse(
+            anomaly_id=target_anomaly.id,
+            description=target_anomaly.description,
+            amount=target_anomaly.amount,
+            category=target_anomaly.category,
+            statistical_reason=target_anomaly.reason,
+            ai_explanation=deterministic_explanation,
+            recommended_action=recommended_action,
+            model_used="Deterministic Engine (Ollama Standby)",
+            is_fallback=True,
+        )
+
+    prompt = (
+        f"A business transaction was flagged as an unusual variance:\n"
+        f"Date: {target_anomaly.date}\n"
+        f"Description: {target_anomaly.description}\n"
+        f"Amount: ₹{target_anomaly.amount:,.2f}\n"
+        f"Category: {target_anomaly.category}\n"
+        f"Statistical Reason: {target_anomaly.reason}\n\n"
+        f"Explain in 2 concise sentences why this stands out and what specific question the business owner should ask."
+    )
+
+    gen_result = ai_service.generate(
+        prompt=prompt,
+        system=SYSTEM_FINANCIAL_ANALYST_PROMPT,
+        model=ai_status.active_model,
+    )
+
+    if gen_result.get("success"):
+        return ExplainAnomalyResponse(
+            anomaly_id=target_anomaly.id,
+            description=target_anomaly.description,
+            amount=target_anomaly.amount,
+            category=target_anomaly.category,
+            statistical_reason=target_anomaly.reason,
+            ai_explanation=gen_result.get("response", deterministic_explanation),
+            recommended_action=recommended_action,
+            model_used=gen_result.get("model_used", ai_status.active_model),
+            is_fallback=False,
+        )
+
+    return ExplainAnomalyResponse(
+        anomaly_id=target_anomaly.id,
+        description=target_anomaly.description,
+        amount=target_anomaly.amount,
+        category=target_anomaly.category,
+        statistical_reason=target_anomaly.reason,
+        ai_explanation=deterministic_explanation,
+        recommended_action=recommended_action,
+        model_used=f"{ai_status.active_model} (Fallback)",
+        is_fallback=True,
     )

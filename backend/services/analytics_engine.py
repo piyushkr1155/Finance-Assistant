@@ -252,102 +252,15 @@ def get_largest_transactions(
     return results
 
 
+from services.anomaly_detector import detect_unusual_transactions_comprehensive
+
 def detect_unusual_transactions(
     transactions: List[NormalizedTransaction],
 ) -> AnomalyReport:
     """
     Deterministic Unusual Transaction Detection.
-    Uses robust non-parametric statistics (IQR and Leave-One-Out Category Baselines)
-    so extreme values do not artificially mask themselves by skewing the baseline.
+    Uses robust non-parametric statistics (IQR, Leave-One-Out Category Baselines, and Budget Share)
     Never claims fraud; clearly explains statistical basis.
     """
-    if not transactions or len(transactions) < 3:
-        return AnomalyReport(
-            total_anomalies=0,
-            anomalies=[],
-            summary="Dataset has too few records for meaningful statistical outlier detection.",
-        )
-
-    df = transactions_to_df(transactions)
-    anomalies: List[UnusualTransaction] = []
-
-    for t_type in [TransactionType.EXPENSE.value, TransactionType.INCOME.value]:
-        sub_df = df[df["type"] == t_type].copy()
-        if len(sub_df) < 2:
-            continue
-
-        amounts = sub_df["amount"].values
-        overall_median = float(np.median(amounts))
-        q25 = float(np.percentile(amounts, 25))
-        q75 = float(np.percentile(amounts, 75))
-        iqr = q75 - q25
-        iqr_upper_bound = q75 + (1.5 * iqr) if iqr > 0 else (overall_median * 2.5)
-
-        for _, row in sub_df.iterrows():
-            amt = float(row["amount"])
-            cat = str(row["category"])
-            row_id = str(row["id"])
-
-            # Category items excluding this current transaction (Leave-One-Out)
-            cat_others = sub_df[(sub_df["category"] == cat) & (sub_df["id"] != row_id)]["amount"]
-
-            reasons = []
-            ratio_cat = None
-            severity = "medium"
-
-            # Check 1: Category Baseline Comparison (Leave-One-Out)
-            if len(cat_others) >= 1:
-                other_avg = float(cat_others.mean())
-                if other_avg > 0 and amt >= 2.5 * other_avg and (amt - other_avg) >= 1000:
-                    ratio_cat = round(amt / other_avg, 1)
-                    reasons.append(
-                        f"{ratio_cat}x higher than the typical category average of ₹{other_avg:,.2f} for '{cat}'"
-                    )
-                    if ratio_cat >= 4.0:
-                        severity = "high"
-
-            # Check 2: Statistical IQR Outlier across this transaction type
-            if iqr > 0 and amt > iqr_upper_bound and (amt - overall_median) >= 2000:
-                reasons.append(
-                    f"Significantly exceeds typical {t_type} range (upper IQR threshold: ₹{iqr_upper_bound:,.2f})"
-                )
-                if amt > q75 + (3.0 * iqr):
-                    severity = "high"
-
-            # Check 3: Large Multiple of Median if category baseline is unavailable or single item
-            if not reasons and amt >= 3.0 * overall_median and (amt - overall_median) >= 3000:
-                mult = round(amt / overall_median, 1) if overall_median > 0 else 0
-                reasons.append(
-                    f"{mult}x higher than overall median {t_type} (₹{overall_median:,.2f})"
-                )
-
-            if reasons:
-                anomalies.append(
-                    UnusualTransaction(
-                        id=row_id,
-                        date=row["date"].strftime("%Y-%m-%d"),
-                        description=str(row["description"]),
-                        amount=round(amt, 2),
-                        type=t_type,
-                        category=cat,
-                        reason="; ".join(reasons),
-                        ratio_to_category_avg=ratio_cat,
-                        severity=severity,
-                    )
-                )
-
-    # Sort anomalies descending by amount
-    anomalies.sort(key=lambda x: x.amount, reverse=True)
-
-    summary = (
-        f"Detected {len(anomalies)} unusual transaction(s) requiring review based on category variance and statistical deviation."
-        if anomalies
-        else "No statistical anomalies detected; transactions conform to normal spending and income baselines."
-    )
-
-    return AnomalyReport(
-        total_anomalies=len(anomalies),
-        anomalies=anomalies,
-        summary=summary,
-    )
+    return detect_unusual_transactions_comprehensive(transactions)
 
