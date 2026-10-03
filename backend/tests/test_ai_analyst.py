@@ -93,18 +93,25 @@ def test_ai_insights_endpoint_offline_fallback(active_session_id):
 
 # 5. Test Insights API Endpoint (Mocked Ollama Online)
 def test_ai_insights_endpoint_mocked_online(active_session_id):
-    mock_status_res = MagicMock()
-    mock_status_res.status_code = 200
-    mock_status_res.json.return_value = {"models": [{"name": "llama3.2:1b"}]}
+    from models.ai import AIStatusResponse
 
-    mock_gen_res = MagicMock()
-    mock_gen_res.status_code = 200
-    mock_gen_res.json.return_value = {
-        "response": "The business exhibits solid financial health with ₹330,000 in income and ₹130,000 in expenses."
+    mock_status = AIStatusResponse(
+        available=True,
+        service="Ollama",
+        active_model="llama3.2:1b",
+        available_models=["llama3.2:1b"],
+        message="Local AI ready",
+        setup_instructions="",
+    )
+    mock_gen_result = {
+        "success": True,
+        "model_used": "llama3.2:1b",
+        "response": "The business exhibits solid financial health with ₹330,000 in income and ₹130,000 in expenses.",
+        "is_fallback": False,
     }
 
-    with patch("httpx.Client.get", return_value=mock_status_res), \
-         patch("httpx.Client.post", return_value=mock_gen_res):
+    with patch("api.ai.ai_service.get_status", return_value=mock_status), \
+         patch("api.ai.ai_service.generate", return_value=mock_gen_result):
         res = client.post("/api/ai/insights", json={"session_id": active_session_id})
         assert res.status_code == 200
         data = res.json()
