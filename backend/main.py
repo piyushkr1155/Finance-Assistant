@@ -27,10 +27,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.responses import JSONResponse
+from fastapi import Request
+import traceback
+
 # Register API Routers
 app.include_router(upload_router)
 app.include_router(analytics_router)
 app.include_router(ai_router)
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Catch-all exception handler ensuring zero unformatted stack traces
+    leak to end users. Full diagnostic traceback is recorded to server stderr.
+    """
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal Server Error",
+            "detail": "An unexpected error occurred while processing your request. Please try again or check server logs.",
+        },
+    )
 
 
 @app.get("/")

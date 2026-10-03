@@ -122,4 +122,9 @@ def _parse_excel(file_bytes: bytes) -> pd.DataFrame:
         df = pd.read_excel(buffer, engine="openpyxl", dtype=str)
         return df
     except Exception as e:
-        raise FileParserError(f"Failed to parse Excel file: {str(e)}")
+        err_msg = str(e)
+        if any(w in err_msg.lower() for w in ["zip", "badzipfile", "file is not a zip", "corrupt", "header"]):
+            raise FileParserError(
+                "The uploaded Excel file is corrupted, incomplete, or not a valid XLSX document."
+            )
+        raise FileParserError(f"Failed to read Excel spreadsheet: {err_msg}")
