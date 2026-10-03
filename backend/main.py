@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
+from api.upload import router as upload_router
+
 app = FastAPI(
     title="LocalLedger AI API",
     description="Privacy-first, local-AI-powered financial assistant for small businesses.",
@@ -21,6 +23,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register API Routers
+app.include_router(upload_router)
 
 
 @app.get("/")
