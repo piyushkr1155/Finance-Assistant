@@ -19,8 +19,9 @@ Before submitting code, please understand our core engineering principles:
 
 ### 1. Fork & Clone
 ```bash
-git clone https://github.com/<your-username>/localledger-ai.git
-cd localledger-ai
+# Fork the repo on GitHub, then clone your fork:
+git clone https://github.com/<your-username>/Finance-Assistant.git
+cd Finance-Assistant
 ```
 
 ### 2. Backend Setup

@@ -207,8 +207,8 @@ All business analytics are calculated through deterministic algorithms:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/localledger-ai.git
-cd localledger-ai
+git clone https://github.com/piyushkr1155/Finance-Assistant.git
+cd Finance-Assistant
 ```
 
 ### 2. Backend Setup

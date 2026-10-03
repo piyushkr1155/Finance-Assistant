@@ -3,7 +3,7 @@ title: "LocalLedger AI: Privacy-First Small Business Finance Powered by Local Op
 published: true
 tags: hacktoberfest, ai, python, nextjs, opensource
 cover_image: https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=1200
-canonical_url: https://github.com/your-username/localledger-ai
+canonical_url: https://github.com/piyushkr1155/Finance-Assistant
 description: "How we built a 100% on-device, zero-cloud-exfiltration financial intelligence assistant for small businesses using FastAPI, Next.js 16, deterministic Python math, and local open-weight models via Ollama."
 ---
 
@@ -19,7 +19,7 @@ When small business owners turn to modern cloud-based AI tools like ChatGPT or C
 1. **The Cloud Privacy Hazard**: Uploading private ledger statements with client names, payroll disbursements, and vendor rates to public cloud AI APIs exposes confidential business secrets and violates data sovereignty.
 2. **The Math Hallucination Trap**: Large Language Models are probabilistic text generators, not calculators. When asked to compute cash flows, margins, or growth rates, LLMs frequently hallucinate numbers, miscalculate sums, or invent phantom financial discrepancies.
 
-To solve this, I built **[LocalLedger AI](https://github.com/your-username/localledger-ai)**: an open-source, local-first financial intelligence workspace designed specifically for small businesses.
+To solve this, I built **[LocalLedger AI](https://github.com/piyushkr1155/Finance-Assistant)**: an open-source, local-first financial intelligence workspace designed specifically for small businesses.
 
 **LocalLedger AI** operates on a strict **two-tier architecture**:
 - **Tier 1 (Deterministic Math Engine)**: Computes 100% of arithmetic calculations (Total Income, Total Expenses, Net Cash Flow, Savings Margin %, Month-over-Month Growth %, and Statistical Outlier Bounds) with mathematical precision in Python using Pandas and NumPy. **AI is never permitted to calculate or guess numbers.**
@@ -183,8 +183,8 @@ Small businesses often export files with corrupted ZIP headers or pseudo-Excel f
 
 ### 1. Clone & Setup Backend
 ```bash
-git clone https://github.com/your-username/localledger-ai.git
-cd localledger-ai/backend
+git clone https://github.com/piyushkr1155/Finance-Assistant.git
+cd Finance-Assistant/backend
 
 python -m venv venv
 # On Windows: .\venv\Scripts\activate | On macOS/Linux: source venv/bin/activate
@@ -195,7 +195,7 @@ python -m uvicorn main:app --reload --port 8000
 ### 2. Setup Frontend
 In another terminal:
 ```bash
-cd localledger-ai/frontend
+cd Finance-Assistant/frontend
 npm install
 npm run dev
 ```
@@ -223,8 +223,8 @@ ollama run llama3.2:1b
 
 LocalLedger AI was built with love for small business owners, privacy advocates, and open-source contributors during **Hacktoberfest 2026**.
 
-- **GitHub Repository**: [https://github.com/your-username/localledger-ai](https://github.com/your-username/localledger-ai)
+- **GitHub Repository**: [https://github.com/piyushkr1155/Finance-Assistant](https://github.com/piyushkr1155/Finance-Assistant)
 - **License**: MIT License
-- **Contributions**: Check out [CONTRIBUTING.md](https://github.com/your-username/localledger-ai/blob/master/CONTRIBUTING.md) for Good First Issues!
+- **Contributions**: Check out [CONTRIBUTING.md](https://github.com/piyushkr1155/Finance-Assistant/blob/main/CONTRIBUTING.md) for Good First Issues!
 
 *If you believe small business owners deserve privacy-first AI without sacrificing accuracy, feel free to give the repository a star on GitHub! ⭐*
