@@ -11,8 +11,9 @@ import {
   AskBusinessResponse,
   ExplainAnomalyResponse,
 } from "@/types";
+import { API_URL, API_BASE } from "./config";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+export { API_URL, API_BASE };
 
 export class ApiError extends Error {
   status: number;
@@ -41,21 +42,21 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     if (err instanceof ApiError) throw err;
     throw new ApiError(
       "Unable to connect to LocalLedger backend. Please ensure the backend is running at " +
-        API_BASE,
+        API_URL,
       0
     );
   }
 }
 
 export async function checkHealth(): Promise<SystemHealth> {
-  return fetchJson<SystemHealth>(`${API_BASE}/api/health`);
+  return fetchJson<SystemHealth>(`${API_URL}/api/health`);
 }
 
 export async function uploadFinancialFile(file: File): Promise<UploadResult> {
   const formData = new FormData();
   formData.append("file", file);
 
-  return fetchJson<UploadResult>(`${API_BASE}/api/upload`, {
+  return fetchJson<UploadResult>(`${API_URL}/api/upload`, {
     method: "POST",
     body: formData,
   });
@@ -63,7 +64,7 @@ export async function uploadFinancialFile(file: File): Promise<UploadResult> {
 
 export async function fetchSummary(sessionId: string): Promise<SummaryKPIs> {
   return fetchJson<SummaryKPIs>(
-    `${API_BASE}/api/analytics/summary?session_id=${encodeURIComponent(sessionId)}`
+    `${API_URL}/api/analytics/summary?session_id=${encodeURIComponent(sessionId)}`
   );
 }
 
@@ -71,7 +72,7 @@ export async function fetchMonthlyTrends(
   sessionId: string
 ): Promise<MonthlyMetric[]> {
   return fetchJson<MonthlyMetric[]>(
-    `${API_BASE}/api/analytics/monthly?session_id=${encodeURIComponent(sessionId)}`
+    `${API_URL}/api/analytics/monthly?session_id=${encodeURIComponent(sessionId)}`
   );
 }
 
@@ -80,7 +81,7 @@ export async function fetchCategoryBreakdown(
   type: string = "expense"
 ): Promise<CategoryBreakdown[]> {
   return fetchJson<CategoryBreakdown[]>(
-    `${API_BASE}/api/analytics/categories?session_id=${encodeURIComponent(
+    `${API_URL}/api/analytics/categories?session_id=${encodeURIComponent(
       sessionId
     )}&type=${encodeURIComponent(type)}`
   );
@@ -91,7 +92,7 @@ export async function fetchLargestTransactions(
   limit: number = 8,
   type?: string
 ): Promise<LargestTransaction[]> {
-  let url = `${API_BASE}/api/analytics/largest?session_id=${encodeURIComponent(
+  let url = `${API_URL}/api/analytics/largest?session_id=${encodeURIComponent(
     sessionId
   )}&limit=${limit}`;
   if (type) {
@@ -102,7 +103,7 @@ export async function fetchLargestTransactions(
 
 export async function fetchAnomalies(sessionId: string): Promise<AnomalyReport> {
   return fetchJson<AnomalyReport>(
-    `${API_BASE}/api/analytics/anomalies?session_id=${encodeURIComponent(sessionId)}`
+    `${API_URL}/api/analytics/anomalies?session_id=${encodeURIComponent(sessionId)}`
   );
 }
 
@@ -112,7 +113,7 @@ export async function fetchTransactions(
   offset: number = 0,
   search?: string
 ): Promise<{ total_count: number; transactions: Transaction[] }> {
-  let url = `${API_BASE}/api/transactions?session_id=${encodeURIComponent(
+  let url = `${API_URL}/api/transactions?session_id=${encodeURIComponent(
     sessionId
   )}&limit=${limit}&offset=${offset}`;
   if (search) {
@@ -125,7 +126,7 @@ export async function generateAIInsights(
   sessionId: string,
   model?: string
 ): Promise<AIGenerateResponse> {
-  return fetchJson<AIGenerateResponse>(`${API_BASE}/api/ai/insights`, {
+  return fetchJson<AIGenerateResponse>(`${API_URL}/api/ai/insights`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id: sessionId, model }),
@@ -136,7 +137,7 @@ export async function askBusiness(
   sessionId: string,
   query: string
 ): Promise<AskBusinessResponse> {
-  return fetchJson<AskBusinessResponse>(`${API_BASE}/api/ai/ask`, {
+  return fetchJson<AskBusinessResponse>(`${API_URL}/api/ai/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id: sessionId, query }),
@@ -147,7 +148,7 @@ export async function explainAnomaly(
   sessionId: string,
   anomalyId: string
 ): Promise<ExplainAnomalyResponse> {
-  return fetchJson<ExplainAnomalyResponse>(`${API_BASE}/api/ai/explain-anomaly`, {
+  return fetchJson<ExplainAnomalyResponse>(`${API_URL}/api/ai/explain-anomaly`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id: sessionId, anomaly_id: anomalyId }),
@@ -156,7 +157,7 @@ export async function explainAnomaly(
 
 export async function purgeSession(sessionId: string): Promise<{ status: string; session_id: string }> {
   return fetchJson<{ status: string; session_id: string }>(
-    `${API_BASE}/api/session?session_id=${encodeURIComponent(sessionId)}`,
+    `${API_URL}/api/session?session_id=${encodeURIComponent(sessionId)}`,
     {
       method: "DELETE",
     }
