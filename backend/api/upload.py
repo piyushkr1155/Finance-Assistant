@@ -189,3 +189,24 @@ def get_transactions(
         total_count=total_count,
         transactions=paginated,
     )
+
+
+@router.delete("/session")
+def purge_session(
+    session_id: str = Query(..., description="Session ID to permanently purge from memory")
+):
+    """
+    Privacy control: Permanently wipes uploaded financial records and cached analytics
+    from server memory.
+    """
+    success = session_store.clear(session_id)
+    if not success:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Session '{session_id}' not found or already purged.",
+        )
+    return {
+        "status": "purged",
+        "session_id": session_id,
+        "message": "All financial records for this session have been permanently erased from memory.",
+    }

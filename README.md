@@ -77,10 +77,18 @@ Visit [http://localhost:3000](http://localhost:3000) to access the dashboard.
 
 ---
 
-## 🛡️ Privacy & Local AI
-- **100% Local Inference:** No transaction amounts, vendor names, or financial summaries are sent to third-party cloud APIs.
-- **Deterministic Math:** Financial totals, balances, and growth rates are calculated with deterministic code, never guessed by an LLM.
-- **Zero Telemetry:** No tracking, analytics cookies, or external pings.
+## 🛡️ Privacy & Security Architecture
+
+> We believe small business owners deserve complete transparency regarding how their ledger data is handled. We do not make misleading claims of being "100% secure," but implement strict, verifiable technical protections to safeguard financial records:
+
+- **Local Inference Only:** Natural language synthesis is executed entirely on your machine via local Ollama models (`http://127.0.0.1:11434`). No transaction details, payee names, or financial summaries are transmitted to external cloud AI APIs.
+- **In-Memory Ephemeral Lifecycle:** Uploaded files are parsed directly into server RAM. They are never written to public web folders, shadow copies, or unencrypted persistent databases.
+- **On-Demand Memory Purge:** You can permanently erase all active session transactions and cached calculations from memory at any time with a single click or via `DELETE /api/session`.
+- **Upload Hardening:** Maximum upload file size is capped at 10 MB, file names are sanitized to prevent directory traversal attacks, and only `.csv`, `.xlsx`, and `.xls` extensions are permitted.
+- **Anti-Hallucination Grounding:** The local LLM never sees raw unstructured files. It only receives pre-computed mathematical summaries, and AI responses are verified against ground-truth analytical numbers.
+- **No Sensitive Logging & Zero Telemetry:** Server logs omit transaction descriptions and amounts. No tracking beacons or third-party analytics are embedded.
+
+For detailed technical specifications, read the full [Privacy & Security Documentation](docs/privacy.md).
 
 ---
 

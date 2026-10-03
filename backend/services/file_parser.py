@@ -1,5 +1,6 @@
 import io
 import os
+import re
 import pandas as pd
 from typing import Tuple
 
@@ -14,15 +15,45 @@ class FileParserError(Exception):
         self.status_code = status_code
 
 
+def sanitize_filename(filename: str) -> str:
+    """
+    Sanitizes user-provided filename to prevent path traversal, null bytes,
+    and injection attacks.
+    """
+    if not filename:
+        return "unnamed_file"
+
+    # Strip directory paths
+    base = os.path.basename(filename)
+
+    # Remove null bytes and non-printable control characters
+    base = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", base)
+
+    # Remove path traversal characters (../, ..\\)
+    base = re.sub(r"\.\.+", ".", base)
+
+    # Remove potentially dangerous characters, allowing alphanumeric, space, dot, underscore, dash
+    base = re.sub(r"[^\w\s.-]", "", base).strip()
+
+    # Fallback if empty after sanitization
+    if not base:
+        return "sanitized_file"
+
+    # Limit filename length to 100 chars
+    return base[:100]
+
+
 def parse_uploaded_file(file_bytes: bytes, filename: str) -> Tuple[pd.DataFrame, str]:
     """
-    Parses uploaded CSV or Excel bytes into a pandas DataFrame.
-    Validates file extension, size, and handles multiple encodings.
+    Parses uploaded CSV or Excel bytes into a pandas DataFrame in memory.
+    Validates file extension, size, and handles multiple encodings without writing to disk.
     """
     if not filename:
         raise FileParserError("Filename must not be empty.")
 
-    _, ext = os.path.splitext(filename.lower())
+    clean_name = sanitize_filename(filename)
+    _, ext = os.path.splitext(clean_name.lower())
+
     if ext not in SUPPORTED_EXTENSIONS:
         raise FileParserError(
             f"Unsupported file format '{ext}'. Supported formats are: {', '.join(sorted(SUPPORTED_EXTENSIONS))}"
@@ -33,7 +64,7 @@ def parse_uploaded_file(file_bytes: bytes, filename: str) -> Tuple[pd.DataFrame,
 
     if len(file_bytes) > MAX_FILE_SIZE_BYTES:
         raise FileParserError(
-            f"File size exceeds maximum allowed limit of {MAX_FILE_SIZE_BYTES // (1024 * 1024)}MB."
+            f"File size ({len(file_bytes) / (1024 * 1024):.2f}MB) exceeds maximum allowed limit of {MAX_FILE_SIZE_BYTES // (1024 * 1024)}MB."
         )
 
     df: pd.DataFrame
@@ -63,7 +94,6 @@ def _parse_csv(file_bytes: bytes) -> pd.DataFrame:
     for enc in encodings_to_try:
         try:
             text_content = file_bytes.decode(enc)
-            # Try sniffing delimiter or try commas then semicolons then tabs
             for delim in delimiters_to_try:
                 try:
                     df = pd.read_csv(
@@ -73,7 +103,6 @@ def _parse_csv(file_bytes: bytes) -> pd.DataFrame:
                         keep_default_na=True,
                         skip_blank_lines=True,
                     )
-                    # If it has more than 1 column or only 1 column is expected and parsed
                     if len(df.columns) > 1 or (len(df.columns) == 1 and delim == ","):
                         return df
                 except Exception as e:
