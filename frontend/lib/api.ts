@@ -7,6 +7,9 @@ import {
   AnomalyReport,
   Transaction,
   SystemHealth,
+  AIGenerateResponse,
+  AskBusinessResponse,
+  ExplainAnomalyResponse,
 } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -85,13 +88,16 @@ export async function fetchCategoryBreakdown(
 
 export async function fetchLargestTransactions(
   sessionId: string,
-  limit: number = 8
+  limit: number = 8,
+  type?: string
 ): Promise<LargestTransaction[]> {
-  return fetchJson<LargestTransaction[]>(
-    `${API_BASE}/api/analytics/largest?session_id=${encodeURIComponent(
-      sessionId
-    )}&limit=${limit}`
-  );
+  let url = `${API_BASE}/api/analytics/largest?session_id=${encodeURIComponent(
+    sessionId
+  )}&limit=${limit}`;
+  if (type) {
+    url += `&type=${encodeURIComponent(type)}`;
+  }
+  return fetchJson<LargestTransaction[]>(url);
 }
 
 export async function fetchAnomalies(sessionId: string): Promise<AnomalyReport> {
@@ -113,6 +119,48 @@ export async function fetchTransactions(
     url += `&search=${encodeURIComponent(search)}`;
   }
   return fetchJson<{ total_count: number; transactions: Transaction[] }>(url);
+}
+
+export async function generateAIInsights(
+  sessionId: string,
+  model?: string
+): Promise<AIGenerateResponse> {
+  return fetchJson<AIGenerateResponse>(`${API_BASE}/api/ai/insights`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, model }),
+  });
+}
+
+export async function askBusiness(
+  sessionId: string,
+  query: string
+): Promise<AskBusinessResponse> {
+  return fetchJson<AskBusinessResponse>(`${API_BASE}/api/ai/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, query }),
+  });
+}
+
+export async function explainAnomaly(
+  sessionId: string,
+  anomalyId: string
+): Promise<ExplainAnomalyResponse> {
+  return fetchJson<ExplainAnomalyResponse>(`${API_BASE}/api/ai/explain-anomaly`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, anomaly_id: anomalyId }),
+  });
+}
+
+export async function purgeSession(sessionId: string): Promise<{ status: string; session_id: string }> {
+  return fetchJson<{ status: string; session_id: string }>(
+    `${API_BASE}/api/session?session_id=${encodeURIComponent(sessionId)}`,
+    {
+      method: "DELETE",
+    }
+  );
 }
 
 export function formatCurrency(

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { UploadCloud, FileSpreadsheet, AlertCircle, Sparkles, Loader2 } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, AlertCircle, Sparkles, Loader2, ArrowRight } from "lucide-react";
 
 interface UploadZoneProps {
   onFileUpload: (file: File) => void;
@@ -43,16 +43,26 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto my-8">
+    <div className="w-full max-w-4xl mx-auto my-6 space-y-4">
+      {error && (
+        <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/80 text-rose-300 text-xs flex items-start space-x-3 shadow-sm animate-in fade-in duration-200">
+          <AlertCircle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold text-rose-200">File Processing Notice</p>
+            <p>{error}</p>
+          </div>
+        </div>
+      )}
+
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !isLoading && fileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-200 ${
+        className={`relative border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-200 bg-zinc-900/60 hover:bg-zinc-900/90 shadow-sm ${
           isDragOver
-            ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20"
-            : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900/50 hover:border-zinc-400 dark:hover:border-zinc-600"
+            ? "border-emerald-500 bg-emerald-950/20 scale-[1.01]"
+            : "border-zinc-800 hover:border-zinc-700"
         } ${isLoading ? "pointer-events-none opacity-80" : ""}`}
       >
         <input
@@ -65,7 +75,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
         />
 
         <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="h-16 w-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div className="h-16 w-16 rounded-2xl bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400 shadow-inner">
             {isLoading ? (
               <Loader2 className="h-8 w-8 animate-spin" />
             ) : (
@@ -73,32 +83,34 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
             )}
           </div>
 
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <div className="space-y-1.5 max-w-md">
+            <h3 className="text-lg font-bold text-zinc-100">
               {isLoading
                 ? "Parsing & Normalizing Financial Ledger..."
-                : "Drop your CSV or Excel file here, or browse"}
+                : "Drop your bank statement or expense ledger here"}
             </h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Supports CSV, XLSX, and XLS exports from bank statements, Tally, or QuickBooks (up to 10MB)
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Upload bank exports (.CSV, .XLSX, .XLS) up to 10MB. Files are processed entirely in local memory with zero cloud exfiltration.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              <FileSpreadsheet className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-              .CSV
+          {/* Formats badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+              <FileSpreadsheet className="h-3.5 w-3.5 mr-1 text-emerald-400" />
+              CSV (.csv)
             </span>
-            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              <FileSpreadsheet className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-              .XLSX / .XLS
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+              <FileSpreadsheet className="h-3.5 w-3.5 mr-1 text-emerald-400" />
+              Excel (.xlsx / .xls)
             </span>
-            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-              Flexible Column Auto-Mapping
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+              Auto-Maps Debit &amp; Credit
             </span>
           </div>
 
-          <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 w-full max-w-sm flex items-center justify-center">
+          {/* 1-Click Sample Dataset Button */}
+          <div className="pt-3 border-t border-zinc-800/80 w-full max-w-sm mx-auto">
             <button
               type="button"
               onClick={(e) => {
@@ -106,24 +118,15 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
                 onLoadSample();
               }}
               disabled={isLoading}
-              className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950 hover:bg-emerald-100 dark:hover:bg-emerald-900 border border-emerald-200 dark:border-emerald-800 transition shadow-sm"
+              className="w-full inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 transition active:scale-98 cursor-pointer disabled:opacity-50"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Or click here to load Sample Business Dataset</span>
+              <Sparkles className="h-4 w-4 text-emerald-400" />
+              <span>Load Realistic Demo Dataset (1-Click)</span>
+              <ArrowRight className="h-3.5 w-3.5 text-emerald-400" />
             </button>
           </div>
         </div>
       </div>
-
-      {error && (
-        <div className="mt-4 p-4 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 flex items-start space-x-3 text-rose-800 dark:text-rose-300">
-          <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
-          <div className="text-sm">
-            <p className="font-semibold">Upload Error</p>
-            <p>{error}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -103,3 +103,33 @@ export interface SystemHealth {
   active_model?: string;
   available_models?: string[];
 }
+
+export interface AIGenerateResponse {
+  success: boolean;
+  model_used?: string | null;
+  response: string;
+  is_fallback: boolean;
+  context_used?: any;
+}
+
+export interface AskBusinessResponse {
+  query: string;
+  intent: string;
+  answer: string;
+  key_data: string[];
+  why_it_matters: string;
+  what_to_check: string[];
+  evidence?: Record<string, any>;
+}
+
+export interface ExplainAnomalyResponse {
+  anomaly_id: string;
+  description: string;
+  amount: number;
+  category: string;
+  statistical_reason: string;
+  ai_explanation: string;
+  recommended_action: string;
+  model_used: string;
+  is_fallback: boolean;
+}
