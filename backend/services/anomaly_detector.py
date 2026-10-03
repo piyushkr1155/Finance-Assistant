@@ -91,12 +91,19 @@ def detect_unusual_transactions_comprehensive(
                 if amt > q75 + (3.0 * iqr):
                     severity = "high"
 
-            # 3. Large Budget Share Check (Single transaction represents > 25% of the entire month's expenses)
+            # 3. Large Budget Share Check (Single transaction represents >= 35% of entire month's expenses, with at least 3 expenses in that month)
+            m_txns_count = len(sub_df[sub_df["month"] == m])
             m_total = monthly_totals.get(m, 0.0)
-            if m_total > 0 and (amt / m_total) >= 0.25 and amt >= 10000:
+            if (
+                t_type == TransactionType.EXPENSE.value
+                and m_txns_count >= 3
+                and m_total > 0
+                and (amt / m_total) >= 0.35
+                and amt >= 10000
+            ):
                 pct_share = round((amt / m_total) * 100, 1)
                 reasons.append(
-                    f"Represents a massive {pct_share}% of all {m} {t_type}s"
+                    f"Represents a significant {pct_share}% of all {m} expenses"
                 )
                 severity = "high"
 
