@@ -11,8 +11,8 @@ client = TestClient(app)
 
 # 1. Test Filename Sanitization prevents Directory Traversal
 def test_sanitize_filename():
-    assert sanitize_filename("../../../etc/passwd.csv") == "etcpasswd.csv"
-    assert sanitize_filename("..\\..\\windows\\system32\\cmd.exe.xlsx") == "windowssystem32cmd.exe.xlsx"
+    assert sanitize_filename("../../../etc/passwd.csv") == "passwd.csv"
+    assert sanitize_filename("..\\..\\windows\\system32\\cmd.exe.xlsx") == "cmd.exe.xlsx"
     assert sanitize_filename("my\x00_ledger.csv") == "my_ledger.csv"
     assert sanitize_filename("safe_statement_2026.csv") == "safe_statement_2026.csv"
     assert sanitize_filename("") == "unnamed_file"
