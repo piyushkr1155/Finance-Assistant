@@ -79,6 +79,8 @@ Small business owners, independent consultants, and bootstrapped startups genera
                                                        +---------------------------+
 ```
 
+*For detailed Mermaid diagrams, trust boundaries, sequence diagrams, and performance benchmarks, view the full [System Architecture Documentation](docs/architecture.md).*
+
 ---
 
 ## ✨ Key Features
