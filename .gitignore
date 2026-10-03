@@ -1,0 +1,44 @@
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+.npm
+*.tsbuildinfo
+next-env.d.ts
+
+# Python / Virtualenv
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Environment and sensitive secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Data & Uploads (keep sample data, ignore user session uploads)
+backend/uploads/
+*.sqlite3
+*.db
+
+# Operating System & IDEs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Antigravity artifacts (local logs)
+.system_generated/
