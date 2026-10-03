@@ -15,6 +15,11 @@ from models.analytics import (
     UnusualTransaction,
     AnomalyReport,
 )
+from models.ai import (
+    AIStatusResponse,
+    AIGenerateRequest,
+    AIGenerateResponse,
+)
 
 __all__ = [
     "TransactionType",
@@ -30,4 +35,7 @@ __all__ = [
     "LargestTransaction",
     "UnusualTransaction",
     "AnomalyReport",
+    "AIStatusResponse",
+    "AIGenerateRequest",
+    "AIGenerateResponse",
 ]

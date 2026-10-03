@@ -4,6 +4,8 @@ import os
 
 from api.upload import router as upload_router
 from api.analytics import router as analytics_router
+from api.ai import router as ai_router
+from services.ai_provider import ai_service
 
 app = FastAPI(
     title="LocalLedger AI API",
@@ -28,6 +30,7 @@ app.add_middleware(
 # Register API Routers
 app.include_router(upload_router)
 app.include_router(analytics_router)
+app.include_router(ai_router)
 
 
 @app.get("/")
@@ -42,10 +45,15 @@ def read_root():
 
 @app.get("/api/health")
 def health_check():
+    ai_status = ai_service.get_status()
     return {
         "status": "ok",
         "service": "localledger-backend",
         "ollama_base_url": os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434"),
+        "ollama_available": ai_status.available,
+        "active_model": ai_status.active_model,
+        "available_models": ai_status.available_models,
+        "message": ai_status.message,
     }
 
 
